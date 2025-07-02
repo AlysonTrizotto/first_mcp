@@ -16,12 +16,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mcp/settings', [MCPWebController::class, 'updateSettings'])->name('mcp.settings.update');
 });
 
-// Auth Routes (se não estiver usando Breeze/Jetstream)
+// Auth Routes 
 Route::middleware('guest')->group(function () {
     Route::get('/login', function () {
         return view('auth.login');
     })->name('login');
     Route::post('/login', [MCPWebController::class, 'authenticate'])->name('login.post');
+    
+    Route::get('/register', function () {
+        return view('auth.register');
+    })->name('register');
+    Route::post('/register', [MCPWebController::class, 'register'])->name('register.post');
 });
 
 Route::post('/logout', function () {

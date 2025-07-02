@@ -12,8 +12,9 @@ class MCPWebController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(\App\Http\Middleware\EnsureCompanyAccess::class);
+        // Aplicar middlewares apenas para rotas que precisam de autenticação
+        $this->middleware('auth')->except(['authenticate', 'register']);
+        $this->middleware(\App\Http\Middleware\EnsureCompanyAccess::class)->except(['authenticate', 'register']);
     }
 
     /**
@@ -179,5 +180,67 @@ class MCPWebController extends Controller
         return back()->withErrors([
             'email' => 'Credenciais inválidas.',
         ]);
+    }
+
+    /**
+     * Registro de nova conta e empresa
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'company_name' => 'required|string|max:255',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Criar empresa
+            $company = DB::table('companies')->insertGetId([
+                'name' => $request->company_name,
+                'settings' => json_encode([]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Criar usuário admin
+            $user = \App\Models\User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'company_id' => $company,
+                'is_admin' => true,
+            ]);
+
+            // Configuração inicial da empresa
+            DB::table('company_mcp_configs')->insert([
+                'company_id' => $company,
+                'model_name' => config('ollama.model', 'llama3.2'),
+                'max_tokens' => 1000,
+                'temperature' => 0.7,
+                'settings' => json_encode([
+                    'system_prompt' => 'Você é um assistente IA útil e prestativo.',
+                    'max_history' => 10,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            // Login automático
+            Auth::login($user);
+
+            return redirect('/mcp')->with('success', 'Conta criada com sucesso! Bem-vindo ao Laravel MCP.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return back()->withErrors([
+                'email' => 'Erro ao criar conta. Tente novamente.',
+            ])->withInput($request->except('password', 'password_confirmation'));
+        }
     }
 }

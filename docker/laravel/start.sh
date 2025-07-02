@@ -12,10 +12,9 @@ echo "✅ Ollama está online!"
 # Configurar Laravel
 echo "🔧 Configurando Laravel..."
 
-# Gerar chave da aplicação se não existir
-if [ ! -f .env ]; then
-    cp .env.example .env
-fi
+# As variáveis de ambiente já vêm do docker-compose via env_file
+# Apenas garantir que o banco SQLite existe
+touch database/database.sqlite
 
 # Executar migrations
 php artisan migrate --force

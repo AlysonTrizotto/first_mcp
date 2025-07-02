@@ -9,8 +9,8 @@ Sistema completo de **Model Context Protocol (MCP)** integrado ao **Ollama/Llama
 git clone <seu-repo>
 cd first_mcp
 
-# Configure o modelo (opcional - padrão: llama3.2)
-echo "OLLAMA_MODEL=llama3.2" > .env.docker
+# Configure o modelo (opcional - edite .env)
+# OLLAMA_MODEL=llama3.2 (padrão)
 
 # Subir aplicação completa
 docker-compose up -d --build
@@ -65,7 +65,7 @@ make shell-laravel
 
 ## 📊 Modelos Disponíveis
 
-Configure em `.env.docker`:
+Configure no arquivo `.env`:
 
 ```bash
 # Modelos suportados:
@@ -154,7 +154,7 @@ make shell-ollama   # Ollama
 
 ```
 ├── docker-compose.yml     # Orquestração Docker
-├── .env.docker           # Configurações Docker
+├── .env                  # Configurações centralizadas
 ├── Makefile              # Comandos simplificados
 ├── docker/
 │   ├── laravel/          # Container Laravel
@@ -173,7 +173,7 @@ make shell-ollama   # Ollama
 
 ## 🔧 Configurações
 
-### **Variáveis principais (.env.docker):**
+### **Variáveis principais (.env):**
 ```bash
 # Modelo IA
 OLLAMA_MODEL=llama3.2

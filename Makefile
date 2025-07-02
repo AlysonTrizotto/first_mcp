@@ -6,7 +6,7 @@
 
 # Configuração padrão
 COMPOSE_FILE=docker-compose.yml
-ENV_FILE=.env.docker
+ENV_FILE=.env
 
 help: ## Mostrar ajuda
 	@echo "Laravel MCP - Comandos Disponíveis:"

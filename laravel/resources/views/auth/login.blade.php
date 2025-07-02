@@ -154,6 +154,17 @@
                 </div>
             </form>
             
+            <!-- Link para registro -->
+            <div class="text-center mt-3 pt-3 border-top">
+                <small class="text-muted">
+                    Não tem uma conta? 
+                    <a href="{{ route('register') }}" class="text-decoration-none">
+                        <i class="fas fa-user-plus me-1"></i>
+                        Criar conta grátis
+                    </a>
+                </small>
+            </div>
+            
             <!-- Features -->
             <div class="feature-list">
                 <h6 class="mb-3">
