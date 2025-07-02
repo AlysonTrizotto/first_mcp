@@ -4,6 +4,7 @@ Sistema completo de **Model Context Protocol (MCP)** integrado ao **Ollama/Llama
 
 ## ⚡ Início Rápido
 
+### **🐳 Docker Local:**
 ```bash
 # Clone o repositório
 git clone <seu-repo>
@@ -19,8 +20,20 @@ docker-compose up -d --build
 make up
 ```
 
-**🌐 Acesse:** http://localhost:8000  
-**🤖 Ollama API:** http://localhost:11434
+### **☁️ GitHub Codespaces:**
+```bash
+# A URL será detectada automaticamente!
+# Apenas execute:
+make up
+
+# A aplicação detectará o ambiente Codespaces
+# e configurará a URL correta automaticamente
+```
+
+**🌐 Acesso:**
+- **Local:** http://localhost:8000  
+- **Codespaces:** https://[seu-codespace]-8000.app.github.dev (detectado automaticamente)
+- **🤖 Ollama API:** http://localhost:11434 (local) ou https://[seu-codespace]-11434.app.github.dev
 
 ## 🛠️ Comandos Úteis
 
@@ -188,6 +201,26 @@ DB_CONNECTION=sqlite
 ```
 
 ## 🚨 Troubleshooting
+
+### **🌐 URL/Redirecionamento:**
+```bash
+# Verificar URL atual
+make url
+
+# Se a URL não estiver correta, rebuilde:
+make down && make up
+```
+
+### **☁️ GitHub Codespaces:**
+```bash
+# A aplicação detecta automaticamente o Codespaces
+# Se houver problemas de URL, force um restart:
+make restart
+
+# Verificar se as variáveis estão corretas:
+echo $CODESPACE_NAME
+echo $GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN
+```
 
 ### **Ollama não responde:**
 ```bash

@@ -13,6 +13,9 @@ services:
       - laravel_node_modules:/var/www/html/node_modules
     env_file:
       - .env
+    environment:
+      - CODESPACE_NAME=${CODESPACE_NAME}
+      - GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
     depends_on:
       - ollama
     restart: unless-stopped

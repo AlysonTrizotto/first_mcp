@@ -174,7 +174,7 @@ class MCPWebController extends Controller
         ]);
 
         if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->intended('/mcp');
+            return redirect()->intended(route('mcp.index'));
         }
 
         return back()->withErrors([
@@ -233,7 +233,7 @@ class MCPWebController extends Controller
             // Login automático
             Auth::login($user);
 
-            return redirect('/mcp')->with('success', 'Conta criada com sucesso! Bem-vindo ao Laravel MCP.');
+            return redirect()->route('mcp.index')->with('success', 'Conta criada com sucesso! Bem-vindo ao Laravel MCP.');
 
         } catch (\Exception $e) {
             DB::rollback();

@@ -66,6 +66,15 @@ status: ## Ver status dos serviços
 	@curl -s http://localhost:8000 > /dev/null && echo "✅ Laravel: OK" || echo "❌ Laravel: Falha"
 	@curl -s http://localhost:11434/api/tags > /dev/null && echo "✅ Ollama: OK" || echo "❌ Ollama: Falha"
 
+url: ## Mostrar URL da aplicação
+	@if [ ! -z "$$CODESPACE_NAME" ]; then \
+		echo "🌐 Aplicação (Codespaces): https://$$CODESPACE_NAME-8000.$$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"; \
+		echo "🤖 Ollama (Codespaces): https://$$CODESPACE_NAME-11434.$$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"; \
+	else \
+		echo "🌐 Aplicação (Local): http://localhost:8000"; \
+		echo "🤖 Ollama (Local): http://localhost:11434"; \
+	fi
+
 # Comandos de desenvolvimento
 dev-install: ## Instalar dependências (desenvolvimento)
 	docker-compose --env-file $(ENV_FILE) exec laravel composer install

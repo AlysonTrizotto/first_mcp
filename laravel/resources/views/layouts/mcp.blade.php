@@ -203,7 +203,7 @@
                             <i class="fas fa-robot me-2"></i>
                             MCP Dashboard
                         </h5>
-                        <small class="text-white-50">{{ auth()->user()->company->name ?? 'Empresa' }}</small>
+                        <small class="text-white-50">{{ auth()->check() ? (auth()->user()->company->name ?? 'Empresa') : 'Sistema' }}</small>
                     </div>
                     
                     <nav class="mt-3">
@@ -240,6 +240,7 @@
                     </nav>
                     
                     <!-- User Info -->
+                    @auth
                     <div class="mt-auto p-3 border-top border-light border-opacity-25">
                         <div class="d-flex align-items-center text-white-50">
                             <div class="avatar user me-2">
@@ -260,6 +261,7 @@
                             </form>
                         </div>
                     </div>
+                    @endauth
                 </div>
             </div>
             
@@ -321,7 +323,7 @@
         // CSRF Token for AJAX requests
         window.csrfToken = '{{ csrf_token() }}';
         window.apiUrl = '{{ url("/api") }}';
-        window.user = @json(auth()->user());
+        window.user = @json(auth()->check() ? auth()->user() : null);
     </script>
     
     @stack('scripts')
