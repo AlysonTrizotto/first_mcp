@@ -1,0 +1,38 @@
+# Laravel
+laravel/node_modules
+laravel/vendor
+laravel/.env
+laravel/.env.backup
+laravel/.env.production
+laravel/storage/logs/*.log
+laravel/bootstrap/cache/*.php
+laravel/storage/framework/cache/*
+laravel/storage/framework/sessions/*
+laravel/storage/framework/views/*
+
+# Git
+.git
+.gitignore
+README_OLD.md
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Desenvolvimento
+*.log
+*.pid
+*.seed
+*.pid.lock
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+
+# Node
+node_modules
+npm-debug.log
+
+# PHP
+.phpunit.result.cache
