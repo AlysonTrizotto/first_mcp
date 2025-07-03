@@ -37,7 +37,7 @@ Route::middleware('auth:web')->get('/user', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:sanctum'])->prefix('mcp')->group(function () {
+Route::middleware(['auth:web'])->prefix('mcp')->group(function () {
     Route::post('/chat', [MCPController::class, 'chat']);
     Route::get('/status', function () {
         return response()->json([
