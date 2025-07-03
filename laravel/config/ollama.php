@@ -11,7 +11,7 @@ return [
     */
 
     'url' => env('OLLAMA_URL', 'http://localhost:11434'),
-    'model' => env('OLLAMA_MODEL', 'llama3.2:latest'),
+    'model' => env('OLLAMA_MODEL', 'gemma2:2b'),
     'timeout' => env('OLLAMA_TIMEOUT', 60),
     'max_context' => env('MCP_MAX_CONTEXT', 4000),
     'rate_limit' => env('MCP_RATE_LIMIT', 100),

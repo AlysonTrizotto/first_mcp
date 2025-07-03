@@ -50,19 +50,26 @@ class OllamaService
                 'url' => $this->baseUrl,
                 'model' => $this->model,
                 'message' => $message,
-                'company_id' => $companyId
+                'company_id' => $companyId,
+                'constructed_url' => $this->baseUrl
             ]);
             
-            $response = Http::timeout(10)
+            $startTime = microtime(true);
+            
+            $response = Http::timeout(15)
                 ->post($this->baseUrl . '/api/generate', [
                     'model' => $this->model,
                     'prompt' => $this->buildPrompt($message, $companyId),
                     'stream' => false
                 ]);
             
+            $endTime = microtime(true);
+            $duration = round(($endTime - $startTime) * 1000, 2);
+            
             Log::info('Ollama Response', [
                 'status' => $response->status(),
-                'body' => $response->body(),
+                'duration_ms' => $duration,
+                'body_preview' => substr($response->body(), 0, 200),
                 'headers' => $response->headers()
             ]);
             
