@@ -10,13 +10,6 @@ use App\Services\MCP\CompanyAwareMCPServer;
 
 class MCPWebController extends Controller
 {
-    public function __construct()
-    {
-        // Aplicar middlewares apenas para rotas que precisam de autenticação
-        $this->middleware('auth')->except(['authenticate', 'register']);
-        $this->middleware(\App\Http\Middleware\EnsureCompanyAccess::class)->except(['authenticate', 'register']);
-    }
-
     /**
      * Dashboard principal do MCP
      */

@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 // MCP Frontend Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\EnsureCompanyAccess::class])->group(function () {
     Route::get('/mcp', [MCPWebController::class, 'index'])->name('mcp.index');
     Route::get('/mcp/chat', [MCPWebController::class, 'chat'])->name('mcp.chat');
     Route::get('/mcp/analytics', [MCPWebController::class, 'analytics'])->name('mcp.analytics');
