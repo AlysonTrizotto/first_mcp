@@ -100,10 +100,8 @@ class CompanyAwareMCPServer
     {
         $ollamaService = app(\App\Services\OllamaService::class);
         
-        // Construir prompt com contexto da empresa
-        $enhancedMessage = $this->buildEnhancedPrompt($message, $context);
-        
-        $result = $ollamaService->chat($enhancedMessage, $this->companyId);
+        // Usar prompt simples e direto
+        $result = $ollamaService->generateResponse($message);
         
         // Log da interação
         $this->logInteraction($message, $result, $context);
@@ -113,22 +111,8 @@ class CompanyAwareMCPServer
     
     protected function buildEnhancedPrompt(string $message, array $context): string
     {
-        $config = $this->getCompanyConfig();
-        $prompt = $config['custom_instructions'] . "\n\n";
-        
-        $prompt .= "Contexto da Empresa:\n";
-        $prompt .= "- Empresa ID: " . $context['company_id'] . "\n";
-        $prompt .= "- Nome da Empresa: " . $context['company_name'] . "\n";
-        $prompt .= "- Usuário: " . $context['user_name'] . " (ID: " . $context['user_id'] . ")\n";
-        $prompt .= "- Data/Hora: " . $context['date_context'] . "\n\n";
-        
-        if (!empty($context['user_permissions'])) {
-            $prompt .= "Permissões do Usuário: " . implode(', ', $context['user_permissions']) . "\n\n";
-        }
-        
-        $prompt .= "Pergunta do usuário: " . $message;
-        
-        return $prompt;
+        // Prompt simples e direto para evitar problemas
+        return $message;
     }
     
     protected function logInteraction(string $message, array $result, array $context): void

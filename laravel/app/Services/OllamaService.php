@@ -116,6 +116,70 @@ class OllamaService
         }
     }
     
+    public function generateResponse(string $message, array $context = []): array
+    {
+        try {
+            Log::info('Ollama Generate Request', [
+                'url' => $this->baseUrl,
+                'model' => $this->model,
+                'message' => substr($message, 0, 100) . '...'
+            ]);
+            
+            $startTime = microtime(true);
+            
+            $response = Http::timeout(30)
+                ->post($this->baseUrl . '/api/generate', [
+                    'model' => $this->model,
+                    'prompt' => $message,
+                    'stream' => false
+                ]);
+            
+            $endTime = microtime(true);
+            $duration = round(($endTime - $startTime) * 1000, 2);
+            
+            Log::info('Ollama Generate Response Success', [
+                'status' => $response->status(),
+                'duration_ms' => $duration,
+                'response_length' => strlen($response->body()),
+                'model' => $this->model
+            ]);
+            
+            if ($response->failed()) {
+                Log::error('Ollama Generate API Error', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'url' => $this->baseUrl
+                ]);
+                throw new \Exception('Erro na API Ollama: HTTP ' . $response->status());
+            }
+            
+            $responseData = $response->json();
+            
+            return [
+                'success' => true,
+                'response' => $responseData['response'] ?? 'Sem resposta',
+                'model' => $this->model,
+                'duration_ms' => $duration
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('Ollama Generate Error', [
+                'message' => $e->getMessage(),
+                'url' => $this->baseUrl,
+                'model' => $this->model,
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'url' => $this->baseUrl,
+                'model' => $this->model
+            ];
+        }
+    }
+
     protected function buildPrompt(string $message, int $companyId): string
     {
         $prompt = "Você é um assistente IA inteligente e útil para a empresa (ID: $companyId). ";
