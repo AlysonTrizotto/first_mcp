@@ -12,9 +12,35 @@ class OllamaService
     
     public function __construct()
     {
-        // Forçar uso da URL interna do Docker para evitar problemas com URLs externas
-        $this->baseUrl = 'http://ollama:11434';
+        // Tentar diferentes URLs para conexão robusta
+        $this->baseUrl = $this->getOllamaUrl();
         $this->model = config('ollama.model', 'llama3.2:latest');
+    }
+    
+    protected function getOllamaUrl(): string
+    {
+        // Tentar diferentes URLs na ordem de preferência
+        $urls = [
+            'http://ollama-mcp:11434',
+            'http://172.18.0.2:11434',
+            'http://localhost:11434'
+        ];
+        
+        foreach ($urls as $url) {
+            try {
+                $response = Http::timeout(2)->get($url . '/api/tags');
+                if ($response->successful()) {
+                    Log::info('Ollama URL selecionada: ' . $url);
+                    return $url;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+        
+        // Se nenhuma URL funcionar, usar a primeira como fallback
+        Log::warning('Nenhuma URL do Ollama está respondendo, usando fallback');
+        return $urls[0];
     }
     
     public function chat(string $message, int $companyId): array
