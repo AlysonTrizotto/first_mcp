@@ -210,13 +210,16 @@ class MCPWebController extends Controller
             // Configuração inicial da empresa
             DB::table('company_mcp_configs')->insert([
                 'company_id' => $company,
-                'model_name' => config('ollama.model', 'llama3.2'),
-                'max_tokens' => 1000,
-                'temperature' => 0.7,
-                'settings' => json_encode([
-                    'system_prompt' => 'Você é um assistente IA útil e prestativo.',
-                    'max_history' => 10,
+                'ai_model' => config('ollama.model', 'llama3'),
+                'max_context_length' => config('ollama.max_context', 4000),
+                'allowed_tools' => json_encode(['get_users', 'get_analytics', 'get_products']),
+                'custom_instructions' => 'Você é um assistente IA especializado para esta empresa. Sempre responda em português e seja útil.',
+                'security_rules' => json_encode([
+                    'never_show_sensitive_data' => true,
+                    'respect_company_isolation' => true,
+                    'log_all_interactions' => true
                 ]),
+                'active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
