@@ -192,7 +192,6 @@ async function sendMessage() {
             }
         }, {
             headers: {
-                'Authorization': `Bearer {{ auth()->user()->createToken('web')->plainTextToken ?? '' }}`,
                 'X-CSRF-TOKEN': window.csrfToken
             }
         });
