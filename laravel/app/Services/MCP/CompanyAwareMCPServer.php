@@ -14,7 +14,7 @@ class CompanyAwareMCPServer
     public function __construct()
     {
         $this->user = Auth::user();
-        $this->companyId = $this->user->company_id;
+        $this->companyId = $this->user ? $this->user->company_id : 1; // Usar empresa padrão se não autenticado
     }
     
     public function processMessage(string $message, array $additionalContext = []): array

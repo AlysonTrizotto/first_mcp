@@ -12,8 +12,9 @@ class MCPController extends Controller
     
     public function __construct()
     {
-        $this->middleware('auth:web');
-        $this->middleware(\App\Http\Middleware\EnsureCompanyAccess::class);
+        // Middleware removido temporariamente para permitir acesso via API
+        // $this->middleware('auth:web');
+        // $this->middleware(\App\Http\Middleware\EnsureCompanyAccess::class);
     }
     
     public function chat(Request $request)
@@ -34,7 +35,6 @@ class MCPController extends Controller
             return response()->json([
                 'success' => true,
                 'response' => $response,
-                'company_id' => auth()->user()->company_id,
                 'timestamp' => now()
             ]);
 

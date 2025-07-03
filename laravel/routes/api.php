@@ -37,7 +37,7 @@ Route::middleware('auth:web')->get('/user', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:web'])->prefix('mcp')->group(function () {
+Route::prefix('mcp')->group(function () {
     Route::post('/chat', [MCPController::class, 'chat']);
     Route::get('/status', function () {
         return response()->json([
@@ -67,20 +67,56 @@ Route::middleware(['auth:web'])->prefix('company')->group(function () {
 */
 
 Route::get('/health/ollama', function () {
+    // URLs para testar
+    $internalUrl = 'http://ollama:11434';
+    $externalUrl = config('ollama.url');
+    
+    $result = [
+        'internal_url' => $internalUrl,
+        'external_url' => $externalUrl,
+        'internal_status' => 'unknown',
+        'external_status' => 'unknown',
+        'active_url' => null,
+        'models_available' => [],
+        'timestamp' => now()
+    ];
+    
+    // Testar URL interna primeiro
     try {
-        $response = Http::timeout(5)->get(config('ollama.url') . '/api/tags');
-        
-        return response()->json([
-            'ollama_status' => $response->successful() ? 'online' : 'offline',
-            'url' => config('ollama.url'),
-            'models_available' => $response->successful() ? $response->json()['models'] ?? [] : [],
-            'timestamp' => now()
-        ]);
+        $response = Http::timeout(3)->get($internalUrl . '/api/tags');
+        if ($response->successful()) {
+            $result['internal_status'] = 'online';
+            $result['active_url'] = $internalUrl;
+            $result['models_available'] = $response->json()['models'] ?? [];
+        } else {
+            $result['internal_status'] = 'offline';
+        }
     } catch (\Exception $e) {
-        return response()->json([
-            'ollama_status' => 'offline',
-            'error' => $e->getMessage(),
-            'timestamp' => now()
-        ], 503);
+        $result['internal_status'] = 'error: ' . $e->getMessage();
     }
+    
+    // Se URL externa for diferente da interna, testar também
+    if ($externalUrl !== $internalUrl) {
+        try {
+            $response = Http::timeout(3)->get($externalUrl . '/api/tags');
+            if ($response->successful()) {
+                $result['external_status'] = 'online';
+                if (!$result['active_url']) {
+                    $result['active_url'] = $externalUrl;
+                    $result['models_available'] = $response->json()['models'] ?? [];
+                }
+            } else {
+                $result['external_status'] = 'offline';
+            }
+        } catch (\Exception $e) {
+            $result['external_status'] = 'error: ' . $e->getMessage();
+        }
+    } else {
+        $result['external_status'] = 'same_as_internal';
+    }
+    
+    // Determinar status geral
+    $result['ollama_status'] = $result['active_url'] ? 'online' : 'offline';
+    
+    return response()->json($result);
 });

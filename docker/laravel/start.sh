@@ -13,6 +13,11 @@ if [ ! -z "$CODESPACE_NAME" ]; then
     
     # Exportar variável para o ambiente atual
     export APP_URL="$APP_URL"
+    
+    # Tornar portas públicas no Codespaces
+    echo "🌐 Configurando portas públicas no Codespaces..."
+    gh codespace ports visibility 8000:public -c $CODESPACE_NAME 2>/dev/null || echo "⚠️  Não foi possível configurar porta 8000 (pode já estar configurada)"
+    gh codespace ports visibility 11434:public -c $CODESPACE_NAME 2>/dev/null || echo "⚠️  Não foi possível configurar porta 11434 (pode já estar configurada ou gh CLI não disponível)"
 else
     echo "🏠 Ambiente local detectado"
     APP_URL="http://localhost:8000"
