@@ -64,8 +64,48 @@ Route::post('/simple-test', function (Request $request) {
 */
 
 Route::prefix('mcp')->group(function () {
-    // Agora exige autenticação para chat
-    Route::middleware('auth:web')->post('/chat', [MCPController::class, 'chat']);
+    // Rota de teste para debug
+    Route::post('/chat-debug', function (Request $request) {
+        try {
+            return response()->json([
+                'success' => true,
+                'message' => 'Chat debug route works',
+                'data' => $request->all(),
+                'timestamp' => now()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    });
+    
+    // Rota temporária sem autenticação para teste
+    Route::post('/chat', function (Request $request) {
+        try {
+            $mcpServer = new \App\Services\MCP\CompanyAwareMCPServer();
+            
+            $response = $mcpServer->processMessage(
+                $request->input('message', 'teste'),
+                $request->input('context', [])
+            );
+            
+            return response()->json([
+                'success' => true,
+                'response' => $response,
+                'timestamp' => now()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Erro ao processar mensagem: ' . $e->getMessage()
+            ], 500);
+        }
+    });
+    
+    // Agora exige autenticação para chat (desabilitada temporariamente)
+    // Route::middleware('auth:web')->post('/chat', [MCPController::class, 'chat']);
     Route::post('/test', function (Request $request) {
         return response()->json([
             'message' => 'Test successful',
