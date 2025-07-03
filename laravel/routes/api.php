@@ -31,6 +31,23 @@ Route::middleware('auth:web')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/simple-test', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Simple GET test works',
+        'timestamp' => now()
+    ]);
+});
+
+Route::post('/simple-test', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Simple test works',
+        'data' => $request->all(),
+        'timestamp' => now()
+    ]);
+});
+
 /*
 |--------------------------------------------------------------------------
 | MCP Routes
@@ -39,6 +56,13 @@ Route::middleware('auth:web')->get('/user', function (Request $request) {
 
 Route::prefix('mcp')->group(function () {
     Route::post('/chat', [MCPController::class, 'chat']);
+    Route::post('/test', function (Request $request) {
+        return response()->json([
+            'message' => 'Test successful',
+            'received' => $request->all(),
+            'timestamp' => now()
+        ]);
+    });
     Route::get('/status', function () {
         return response()->json([
             'status' => 'active',

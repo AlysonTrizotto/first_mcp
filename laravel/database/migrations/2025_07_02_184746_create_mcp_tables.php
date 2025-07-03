@@ -26,7 +26,7 @@ return new class extends Migration
         Schema::create('mcp_interactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('company_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->text('message');
             $table->json('response');
             $table->json('context')->nullable();

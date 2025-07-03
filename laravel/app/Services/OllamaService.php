@@ -12,19 +12,33 @@ class OllamaService
     
     public function __construct()
     {
-        $this->baseUrl = config('ollama.url', 'http://localhost:11434');
-        $this->model = config('ollama.model', 'llama3');
+        // Forçar uso da URL interna do Docker para evitar problemas com URLs externas
+        $this->baseUrl = 'http://ollama:11434';
+        $this->model = config('ollama.model', 'llama3.2:latest');
     }
     
     public function chat(string $message, int $companyId): array
     {
         try {
-            $response = Http::timeout(60)
+            Log::info('Ollama Request', [
+                'url' => $this->baseUrl,
+                'model' => $this->model,
+                'message' => $message,
+                'company_id' => $companyId
+            ]);
+            
+            $response = Http::timeout(10)
                 ->post($this->baseUrl . '/api/generate', [
                     'model' => $this->model,
                     'prompt' => $this->buildPrompt($message, $companyId),
                     'stream' => false
                 ]);
+            
+            Log::info('Ollama Response', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'headers' => $response->headers()
+            ]);
             
             if ($response->failed()) {
                 throw new \Exception('Erro na API Ollama: ' . $response->status());
@@ -40,7 +54,9 @@ class OllamaService
         } catch (\Exception $e) {
             Log::error('Erro Ollama', [
                 'message' => $e->getMessage(),
-                'company_id' => $companyId
+                'company_id' => $companyId,
+                'url' => $this->baseUrl,
+                'model' => $this->model
             ]);
             
             return [

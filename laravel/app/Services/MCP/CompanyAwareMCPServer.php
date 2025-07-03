@@ -30,9 +30,9 @@ class CompanyAwareMCPServer
         
         return array_merge([
             'company_id' => $this->companyId,
-            'company_name' => $company->name,
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->name,
+            'company_name' => $company->name ?? 'Empresa Padrão',
+            'user_id' => $this->user ? $this->user->id : null,
+            'user_name' => $this->user ? $this->user->name : 'Usuário Anônimo',
             'user_permissions' => $this->getUserPermissions(),
             'available_tables' => $this->getAccessibleTables(),
             'company_config' => $this->getCompanyConfig(),
@@ -50,6 +50,10 @@ class CompanyAwareMCPServer
     protected function getUserPermissions(): array
     {
         // Busca permissões do usuário na empresa
+        if (!$this->user) {
+            return ['anonymous_access']; // Permissões padrão para usuários não autenticados
+        }
+        
         return DB::table('user_permissions')
             ->where('user_id', $this->user->id)
             ->where('company_id', $this->companyId)
@@ -131,7 +135,7 @@ class CompanyAwareMCPServer
     {
         DB::table('mcp_interactions')->insert([
             'company_id' => $this->companyId,
-            'user_id' => $this->user->id,
+            'user_id' => $this->user ? $this->user->id : null,
             'message' => $message,
             'response' => json_encode($result),
             'context' => json_encode($context),
