@@ -373,7 +373,7 @@ async function testConfiguration() {
     
     try {
         // Testa a conexão com Ollama
-        const response = await fetch('/api/health/ollama');
+        const response = await window.AppHelper.request('GET', '/api/health/ollama');
         const data = await response.json();
         
         if (data.ollama_status === 'online') {

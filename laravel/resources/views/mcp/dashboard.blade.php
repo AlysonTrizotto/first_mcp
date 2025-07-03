@@ -217,7 +217,7 @@ async function testConnection() {
     btn.disabled = true;
     
     try {
-        const response = await fetch('/api/health/ollama');
+        const response = await window.AppHelper.request('GET', '/api/health/ollama');
         const data = await response.json();
         
         if (data.ollama_status === 'online') {

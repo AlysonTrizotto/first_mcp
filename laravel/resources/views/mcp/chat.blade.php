@@ -185,20 +185,16 @@ async function sendMessage() {
     showTyping(true);
     
     try {
-        const response = await fetch('/api/mcp/chat', {
-            method: 'POST',
+        const response = await window.AppHelper.request('POST', '/api/mcp/chat', {
+            message: message,
+            context: {
+                timestamp: new Date().toISOString()
+            }
+        }, {
             headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
                 'Authorization': `Bearer {{ auth()->user()->createToken('web')->plainTextToken ?? '' }}`,
                 'X-CSRF-TOKEN': window.csrfToken
-            },
-            body: JSON.stringify({
-                message: message,
-                context: {
-                    timestamp: new Date().toISOString()
-                }
-            })
+            }
         });
         
         const data = await response.json();

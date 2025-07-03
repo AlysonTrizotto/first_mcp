@@ -10,9 +10,13 @@ if [ ! -z "$CODESPACE_NAME" ]; then
     
     # Atualizar .env com a URL correta
     sed -i "s|APP_URL=.*|APP_URL=$APP_URL|g" .env
+    
+    # Exportar variável para o ambiente atual
+    export APP_URL="$APP_URL"
 else
     echo "🏠 Ambiente local detectado"
     APP_URL="http://localhost:8000"
+    export APP_URL="$APP_URL"
 fi
 
 # Aguardar Ollama estar disponível
@@ -29,15 +33,16 @@ echo "🔧 Configurando Laravel..."
 # Apenas garantir que o banco SQLite existe
 touch database/database.sqlite
 
-# Executar migrations
-php artisan migrate --force
-
-# Limpar caches
+# Limpar caches primeiro (importante para recarregar configurações)
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
+php artisan cache:clear
 
-# Otimizar para produção
+# Executar migrations
+php artisan migrate --force
+
+# Otimizar para produção (depois de limpar)
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

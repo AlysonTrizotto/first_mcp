@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\TrustProxies::class,
+            \App\Http\Middleware\EnsureEnvironmentConfiguration::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
