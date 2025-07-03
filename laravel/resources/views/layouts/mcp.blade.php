@@ -209,12 +209,20 @@
                     <nav class="mt-3">
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('mcp.index') ? 'active' : '' }}" 
-                                   href="{{ route('mcp.index') }}">
+                                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
+                                   href="{{ route('dashboard') }}">
                                     <i class="fas fa-home me-2"></i>
                                     Dashboard
                                 </a>
                             </li>
+                        @auth
+                        <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-light w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i> Sair
+                            </button>
+                        </form>
+                        @endauth
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('mcp.chat') ? 'active' : '' }}" 
                                    href="{{ route('mcp.chat') }}">

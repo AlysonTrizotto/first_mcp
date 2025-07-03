@@ -1,4 +1,13 @@
 <?php
+// Rota de debug para testar POST sem interferência de middleware
+Route::post('/debug-test', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'ok' => true,
+        'data' => $request->all(),
+        'session' => session()->all(),
+        'user' => auth()->user(),
+    ]);
+});
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,7 +64,8 @@ Route::post('/simple-test', function (Request $request) {
 */
 
 Route::prefix('mcp')->group(function () {
-    Route::post('/chat', [MCPController::class, 'chat']);
+    // Agora exige autenticação para chat
+    Route::middleware('auth:web')->post('/chat', [MCPController::class, 'chat']);
     Route::post('/test', function (Request $request) {
         return response()->json([
             'message' => 'Test successful',

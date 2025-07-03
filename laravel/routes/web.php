@@ -7,6 +7,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Dashboard protegido
+Route::middleware(['auth', \App\Http\Middleware\EnsureCompanyAccess::class])->get('/dashboard', [MCPWebController::class, 'index'])->name('dashboard');
+
 // MCP Frontend Routes
 Route::middleware(['auth', \App\Http\Middleware\EnsureCompanyAccess::class])->group(function () {
     Route::get('/mcp', [MCPWebController::class, 'index'])->name('mcp.index');
