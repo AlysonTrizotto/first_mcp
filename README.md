@@ -7,7 +7,7 @@ Sistema completo de **Model Context Protocol (MCP)** integrado ao **Ollama/Llama
 ### **🐳 Docker Local:**
 ```bash
 # Clone o repositório
-git clone <seu-repo>
+git clone git@github.com:AlysonTrizotto/first_mcp.git
 cd first_mcp
 
 # Configure o modelo (opcional - edite .env)
