@@ -31,8 +31,36 @@ while ! curl -s http://ollama:11434/api/tags > /dev/null; do
 done
 echo "✅ Ollama está online!"
 
+# Verificar se gemma2:2b está disponível no Ollama
+echo "🤖 Verificando modelo Gemma 2B..."
+RETRIES=0
+MAX_RETRIES=30
+while [ $RETRIES -lt $MAX_RETRIES ]; do
+    if curl -s http://ollama:11434/api/tags | grep -q "gemma2:2b"; then
+        echo "✅ Modelo Gemma 2B encontrado!"
+        break
+    else
+        echo "⏳ Aguardando modelo Gemma 2B ser baixado... ($((RETRIES+1))/$MAX_RETRIES)"
+        sleep 10
+        RETRIES=$((RETRIES+1))
+    fi
+done
+
+if [ $RETRIES -eq $MAX_RETRIES ]; then
+    echo "⚠️  Timeout aguardando Gemma 2B, continuando assim mesmo..."
+fi
+
 # Configurar Laravel
 echo "🔧 Configurando Laravel..."
+
+# Garantir que as variáveis de ambiente estão corretas
+echo "🔧 Configurando variáveis de ambiente para Gemma 2B..."
+export OLLAMA_MODEL="gemma2:2b"
+export OLLAMA_URL="http://ollama:11434"
+
+# Atualizar .env para garantir configuração correta
+sed -i "s|OLLAMA_MODEL=.*|OLLAMA_MODEL=gemma2:2b|g" .env
+sed -i "s|OLLAMA_URL=.*|OLLAMA_URL=http://ollama:11434|g" .env
 
 # As variáveis de ambiente já vêm do docker-compose via env_file
 # Apenas garantir que o banco SQLite existe

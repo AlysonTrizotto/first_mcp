@@ -64,84 +64,49 @@ Route::post('/simple-test', function (Request $request) {
 */
 
 Route::prefix('mcp')->group(function () {
-    // Rota de teste para debug
-    Route::post('/chat-debug', function (Request $request) {
-        try {
-            return response()->json([
-                'success' => true,
-                'message' => 'Chat debug route works',
-                'data' => $request->all(),
-                'timestamp' => now()
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    });
-    
-    // Rota temporária sem autenticação para teste
+    // Rota principal de chat usando MCP Server
     Route::post('/chat', function (Request $request) {
         try {
             \Log::info('API Chat Request', $request->all());
             
             $mcpServer = new \App\Services\MCP\CompanyAwareMCPServer();
             
-            $message = $request->input('message', 'teste');
+            $message = $request->input('message', 'Olá');
             $context = $request->input('context', []);
             
-            \Log::info('Processing message', ['message' => $message]);
+            \Log::info('Processing message with MCP Server', [
+                'message' => substr($message, 0, 100),
+                'context_keys' => array_keys($context)
+            ]);
             
-            // Primeiro tentar com timeout menor
             $response = $mcpServer->processMessage($message, $context);
             
-            \Log::info('MCP Server Response', $response);
-            
-            // Se houve erro relacionado ao timeout do Ollama, retornar resposta padrão
-            if (!$response['success'] && (
-                strpos($response['error'], 'timeout') !== false || 
-                strpos($response['error'], 'timed out') !== false ||
-                strpos($response['error'], 'cURL error 28') !== false
-            )) {
-                \Log::warning('Ollama timeout, using fallback response');
-                return response()->json([
-                    'success' => true,
-                    'response' => [
-                        'success' => true,
-                        'response' => 'Olá! Sou seu assistente IA. No momento estou com alta demanda, mas estou aqui para ajudar. O que você gostaria de saber?',
-                        'model' => config('ollama.model', 'gemma2:2b'),
-                        'company_id' => 1,
-                        'fallback' => true
-                    ],
-                    'timestamp' => now()
-                ]);
-            }
+            \Log::info('MCP Server Response Success', [
+                'success' => $response['success'],
+                'model' => $response['model'] ?? 'unknown',
+                'response_length' => strlen($response['response'] ?? '')
+            ]);
             
             return response()->json([
                 'success' => true,
                 'response' => $response,
                 'timestamp' => now()
             ]);
+            
         } catch (\Exception $e) {
-            \Log::error('Chat API Error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            // Em caso de erro, retornar resposta padrão amigável
-            return response()->json([
-                'success' => true,
-                'response' => [
-                    'success' => true,
-                    'response' => 'Olá! Sou seu assistente IA. No momento estou com dificuldades técnicas, mas estou trabalhando para resolver. Como posso ajudá-lo?',
-                    'model' => config('ollama.model', 'gemma2:2b'),
-                    'company_id' => 1,
-                    'fallback' => true
-                ],
-                'timestamp' => now()
+            \Log::error('Chat API Error', [
+                'error' => $e->getMessage(), 
+                'trace' => $e->getTraceAsString()
             ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Erro interno do servidor: ' . $e->getMessage(),
+                'timestamp' => now()
+            ], 500);
         }
     });
     
-    // Agora exige autenticação para chat (desabilitada temporariamente)
-    // Route::middleware('auth:web')->post('/chat', [MCPController::class, 'chat']);
     Route::post('/test', function (Request $request) {
         return response()->json([
             'message' => 'Test successful',
@@ -149,6 +114,7 @@ Route::prefix('mcp')->group(function () {
             'timestamp' => now()
         ]);
     });
+    
     Route::get('/status', function () {
         return response()->json([
             'status' => 'active',

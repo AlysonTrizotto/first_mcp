@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: docker/ollama/Dockerfile
       args:
-        OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+        OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma2:2b}
     container_name: ollama-mcp
     ports:
       - "11434:11434"

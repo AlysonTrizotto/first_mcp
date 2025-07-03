@@ -12,51 +12,56 @@ class OllamaService
     
     public function __construct()
     {
-        // Tentar diferentes URLs para conexão robusta
+        // Usar localhost que está funcionando
         $this->baseUrl = $this->getOllamaUrl();
-        $this->model = config('ollama.model', 'llama3.2:latest');
+        $this->model = config('ollama.model', 'gemma2:2b');
+        
+        Log::info('OllamaService initialized', [
+            'baseUrl' => $this->baseUrl,
+            'model' => $this->model
+        ]);
     }
     
     protected function getOllamaUrl(): string
     {
         // Tentar diferentes URLs na ordem de preferência
         $urls = [
-            'http://ollama-mcp:11434',
-            'http://172.18.0.2:11434',
-            'http://localhost:11434'
+            'http://localhost:11434',
+            'http://ollama:11434',
+            'http://ollama-mcp:11434'
         ];
         
         foreach ($urls as $url) {
             try {
-                $response = Http::timeout(2)->get($url . '/api/tags');
+                $response = Http::timeout(3)->get($url . '/api/tags');
                 if ($response->successful()) {
                     Log::info('Ollama URL selecionada: ' . $url);
                     return $url;
                 }
             } catch (\Exception $e) {
+                Log::debug('Ollama URL falhou: ' . $url . ' - ' . $e->getMessage());
                 continue;
             }
         }
         
-        // Se nenhuma URL funcionar, usar a primeira como fallback
-        Log::warning('Nenhuma URL do Ollama está respondendo, usando fallback');
-        return $urls[0];
+        // Se nenhuma URL funcionar, usar localhost como fallback
+        Log::warning('Nenhuma URL do Ollama está respondendo, usando localhost como fallback');
+        return 'http://localhost:11434';
     }
     
     public function chat(string $message, int $companyId): array
     {
         try {
-            Log::info('Ollama Request', [
+            Log::info('Ollama Chat Request', [
                 'url' => $this->baseUrl,
                 'model' => $this->model,
-                'message' => $message,
-                'company_id' => $companyId,
-                'constructed_url' => $this->baseUrl
+                'message' => substr($message, 0, 100) . '...',
+                'company_id' => $companyId
             ]);
             
             $startTime = microtime(true);
             
-            $response = Http::timeout(15)
+            $response = Http::timeout(30)
                 ->post($this->baseUrl . '/api/generate', [
                     'model' => $this->model,
                     'prompt' => $this->buildPrompt($message, $companyId),
@@ -66,45 +71,59 @@ class OllamaService
             $endTime = microtime(true);
             $duration = round(($endTime - $startTime) * 1000, 2);
             
-            Log::info('Ollama Response', [
+            Log::info('Ollama Response Success', [
                 'status' => $response->status(),
                 'duration_ms' => $duration,
-                'body_preview' => substr($response->body(), 0, 200),
-                'headers' => $response->headers()
+                'response_length' => strlen($response->body()),
+                'model' => $this->model
             ]);
             
             if ($response->failed()) {
-                throw new \Exception('Erro na API Ollama: ' . $response->status());
+                Log::error('Ollama API Error', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'url' => $this->baseUrl
+                ]);
+                throw new \Exception('Erro na API Ollama: HTTP ' . $response->status());
             }
+            
+            $responseData = $response->json();
             
             return [
                 'success' => true,
-                'response' => $response->json()['response'] ?? '',
+                'response' => $responseData['response'] ?? 'Sem resposta',
                 'model' => $this->model,
-                'company_id' => $companyId
+                'company_id' => $companyId,
+                'duration_ms' => $duration
             ];
             
         } catch (\Exception $e) {
-            Log::error('Erro Ollama', [
+            Log::error('Ollama Error', [
                 'message' => $e->getMessage(),
                 'company_id' => $companyId,
                 'url' => $this->baseUrl,
-                'model' => $this->model
+                'model' => $this->model,
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
             ]);
             
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'url' => $this->baseUrl,
+                'model' => $this->model
             ];
         }
     }
     
     protected function buildPrompt(string $message, int $companyId): string
     {
-        $context = "Você é um assistente IA para a empresa ID: $companyId. ";
-        $context .= "Responda sempre em português e seja útil. ";
-        $context .= "Pergunta do usuário: $message";
+        $prompt = "Você é um assistente IA inteligente e útil para a empresa (ID: $companyId). ";
+        $prompt .= "Responda sempre em português de forma clara e concisa. ";
+        $prompt .= "Se a pergunta for sobre matemática, responda com precisão. ";
+        $prompt .= "Se for uma saudação, seja amigável e profissional. ";
+        $prompt .= "\n\nPergunta: $message\n\nResposta:";
         
-        return $context;
+        return $prompt;
     }
 }
