@@ -12,7 +12,7 @@ class MCPController extends Controller
     
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
+        $this->middleware('auth:web');
         $this->middleware(\App\Http\Middleware\EnsureCompanyAccess::class);
     }
     
