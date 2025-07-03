@@ -55,7 +55,7 @@ Route::middleware(['auth:web'])->prefix('mcp')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:sanctum'])->prefix('company')->group(function () {
+Route::middleware(['auth:web'])->prefix('company')->group(function () {
     Route::get('/users', [AuthController::class, 'getCompanyUsers']);
     Route::post('/users', [AuthController::class, 'createCompanyUser']);
 });
