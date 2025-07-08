@@ -24,11 +24,12 @@ class OllamaService
     
     protected function getOllamaUrl(): string
     {
-        // Tentar diferentes URLs na ordem de preferência
+        // Tentar diferentes URLs na ordem de preferência (Docker-aware)
         $urls = [
-            'http://localhost:11434',
-            'http://ollama:11434',
-            'http://ollama-mcp:11434'
+            'http://ollama-mcp:11434',    // Nome do container Docker
+            'http://ollama:11434',        // Nome alternativo
+            'http://localhost:11434',     // Fallback local
+            'http://172.17.0.1:11434'     // Gateway Docker
         ];
         
         foreach ($urls as $url) {
@@ -44,9 +45,9 @@ class OllamaService
             }
         }
         
-        // Se nenhuma URL funcionar, usar localhost como fallback
-        Log::warning('Nenhuma URL do Ollama está respondendo, usando localhost como fallback');
-        return 'http://localhost:11434';
+        // Se nenhuma URL funcionar, usar o nome do container como fallback
+        Log::warning('Nenhuma URL do Ollama está respondendo, usando container como fallback');
+        return 'http://ollama-mcp:11434';
     }
     
     public function chat(string $message, int $companyId): array

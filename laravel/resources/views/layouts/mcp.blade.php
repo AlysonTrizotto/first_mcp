@@ -215,14 +215,6 @@
                                     Dashboard
                                 </a>
                             </li>
-                        @auth
-                        <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-light w-100">
-                                <i class="fas fa-sign-out-alt me-2"></i> Sair
-                            </button>
-                        </form>
-                        @endauth
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('mcp.chat') ? 'active' : '' }}" 
                                    href="{{ route('mcp.chat') }}">
